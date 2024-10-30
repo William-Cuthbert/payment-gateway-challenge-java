@@ -6,6 +6,7 @@ public class CommonUtils {
   public static final long AUTHORIZED_CARD_NUMBER = 2222405343248877L;
   public static final int AUTHORIZED_LAST_FOUR_DIGIT_CARD_NUMBER = 8877;
   public static final int AUTHORIZED_CVV_NUMBER = 123;
+  public static final int DECLINED_CVV_NUMBER = 456;
   public static final int AUTHORIZED_EXPIRY_MONTH_NUMBER = 4;
   public static final int AUTHORIZED_EXPIRY_YEAR_NUMBER = 2025;
   public static final int AUTHORIZED_AMOUNT = 100;
