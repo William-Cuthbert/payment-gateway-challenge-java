@@ -2,8 +2,8 @@ package com.checkout.payment.gateway.service;
 
 import com.checkout.payment.gateway.enums.PaymentStatus;
 import com.checkout.payment.gateway.exception.EventProcessingException;
-import com.checkout.payment.gateway.model.PostBankSimPaymentReponse;
-import com.checkout.payment.gateway.model.PostBankSimPaymentRequest;
+import com.checkout.payment.gateway.model.PostBankSimulatorPaymentReponse;
+import com.checkout.payment.gateway.model.PostBankSimulatorPaymentRequest;
 import com.checkout.payment.gateway.model.PostPaymentRequest;
 import com.checkout.payment.gateway.model.PostPaymentResponse;
 import com.checkout.payment.gateway.repository.PaymentsRepository;
@@ -34,9 +34,9 @@ public class PaymentGatewayService {
   }
 
   public PostPaymentResponse processPayment(PostPaymentRequest paymentRequest) {
-    PostBankSimPaymentRequest bankRequest = Mapper.mapTo(paymentRequest,
-        PostBankSimPaymentRequest.class);
-    PostBankSimPaymentReponse bankResponse = bankSimulatorClient.processPayment(bankRequest);
+    PostBankSimulatorPaymentRequest bankRequest = Mapper.mapTo(paymentRequest,
+        PostBankSimulatorPaymentRequest.class);
+    PostBankSimulatorPaymentReponse bankResponse = bankSimulatorClient.processPayment(bankRequest);
     PostPaymentResponse paymentResponse = new PostPaymentResponse();
     paymentResponse.setId(UUID.randomUUID());
 

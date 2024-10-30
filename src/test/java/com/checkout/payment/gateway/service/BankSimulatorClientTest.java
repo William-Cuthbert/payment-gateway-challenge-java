@@ -14,8 +14,8 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 import com.checkout.payment.gateway.enums.CurrencyCode;
-import com.checkout.payment.gateway.model.PostBankSimPaymentReponse;
-import com.checkout.payment.gateway.model.PostBankSimPaymentRequest;
+import com.checkout.payment.gateway.model.PostBankSimulatorPaymentReponse;
+import com.checkout.payment.gateway.model.PostBankSimulatorPaymentRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -47,14 +47,14 @@ public class BankSimulatorClientTest {
 
   @Test
   public void testProcessPayment_SuccessfulResponse() {
-    PostBankSimPaymentRequest request = new PostBankSimPaymentRequest();
+    PostBankSimulatorPaymentRequest request = new PostBankSimulatorPaymentRequest();
     request.setAmount(AUTHORIZED_AMOUNT);
     request.setCardNumber(AUTHORIZED_CARD_NUMBER);
     request.setCurrency(CurrencyCode.GBP);
     request.setCvv(AUTHORIZED_CVV_NUMBER);
     request.setExpiryDate("04/25");
 
-    PostBankSimPaymentReponse expectedResponse = new PostBankSimPaymentReponse();
+    PostBankSimulatorPaymentReponse expectedResponse = new PostBankSimulatorPaymentReponse();
     expectedResponse.setAuthorized(true);
     expectedResponse.setAuthorization_code(AUTHORIZATION_CODE);
 
@@ -63,7 +63,7 @@ public class BankSimulatorClientTest {
             "{\"authorized\":true, \"authorization_code\":\"0bb07405-6d44-4b50-a14f-7ae0beff13ad\"}",
             MediaType.APPLICATION_JSON));
 
-    PostBankSimPaymentReponse actualResponse = bankSimulatorClient.processPayment(request);
+    PostBankSimulatorPaymentReponse actualResponse = bankSimulatorClient.processPayment(request);
 
     assertEquals(expectedResponse.isAuthorized(), actualResponse.isAuthorized());
     assertEquals(expectedResponse.getAuthorization_code(), actualResponse.getAuthorization_code());
@@ -72,14 +72,14 @@ public class BankSimulatorClientTest {
 
   @Test
   public void testProcessPayment_DeclinedResponse() {
-    PostBankSimPaymentRequest request = new PostBankSimPaymentRequest();
+    PostBankSimulatorPaymentRequest request = new PostBankSimulatorPaymentRequest();
     request.setAmount(DECLINED_AMOUNT);
     request.setCardNumber(DECLINED_CARD_NUMBER);
     request.setCurrency(CurrencyCode.USD);
     request.setCvv(DECLINED_CVV_NUMBER);
     request.setExpiryDate("01/26");
 
-    PostBankSimPaymentReponse expectedResponse = new PostBankSimPaymentReponse();
+    PostBankSimulatorPaymentReponse expectedResponse = new PostBankSimulatorPaymentReponse();
     expectedResponse.setAuthorized(false);
     expectedResponse.setAuthorization_code("");
 
@@ -88,7 +88,7 @@ public class BankSimulatorClientTest {
             withSuccess("{\"authorized\":false, \"authorization_code\":\"\"}",
                 MediaType.APPLICATION_JSON));
 
-    PostBankSimPaymentReponse actualResponse = bankSimulatorClient.processPayment(request);
+    PostBankSimulatorPaymentReponse actualResponse = bankSimulatorClient.processPayment(request);
 
     assertEquals(expectedResponse.isAuthorized(), actualResponse.isAuthorized());
     assertEquals(expectedResponse.getAuthorization_code(), actualResponse.getAuthorization_code());

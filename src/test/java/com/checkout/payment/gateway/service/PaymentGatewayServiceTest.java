@@ -22,8 +22,8 @@ import static org.mockito.Mockito.when;
 import com.checkout.payment.gateway.enums.CurrencyCode;
 import com.checkout.payment.gateway.enums.PaymentStatus;
 import com.checkout.payment.gateway.exception.EventProcessingException;
-import com.checkout.payment.gateway.model.PostBankSimPaymentReponse;
-import com.checkout.payment.gateway.model.PostBankSimPaymentRequest;
+import com.checkout.payment.gateway.model.PostBankSimulatorPaymentReponse;
+import com.checkout.payment.gateway.model.PostBankSimulatorPaymentRequest;
 import com.checkout.payment.gateway.model.PostPaymentRequest;
 import com.checkout.payment.gateway.model.PostPaymentResponse;
 import com.checkout.payment.gateway.repository.PaymentsRepository;
@@ -59,11 +59,11 @@ public class PaymentGatewayServiceTest {
 
   @Test
   public void processPayment_Authorized() {
-    PostBankSimPaymentReponse bankResponse = new PostBankSimPaymentReponse();
+    PostBankSimulatorPaymentReponse bankResponse = new PostBankSimulatorPaymentReponse();
     bankResponse.setAuthorized(true);
     bankResponse.setAuthorization_code(AUTHORIZATION_CODE);
 
-    when(bankSimulatorClient.processPayment(any(PostBankSimPaymentRequest.class))).thenReturn(
+    when(bankSimulatorClient.processPayment(any(PostBankSimulatorPaymentRequest.class))).thenReturn(
         bankResponse);
     doNothing().when(paymentsRepository).add(expectedResponse);
 
@@ -78,11 +78,11 @@ public class PaymentGatewayServiceTest {
     paymentRequest.setAmount(DECLINED_AMOUNT);
     paymentRequest.setCurrency(CurrencyCode.USD);
 
-    PostBankSimPaymentReponse bankResponse = new PostBankSimPaymentReponse();
+    PostBankSimulatorPaymentReponse bankResponse = new PostBankSimulatorPaymentReponse();
     bankResponse.setAuthorized(false);
     bankResponse.setAuthorization_code("");
 
-    when(bankSimulatorClient.processPayment(any(PostBankSimPaymentRequest.class))).thenReturn(
+    when(bankSimulatorClient.processPayment(any(PostBankSimulatorPaymentRequest.class))).thenReturn(
         bankResponse);
     PostPaymentResponse expectedResult = new PostPaymentResponse();
     expectedResult.setStatus(PaymentStatus.DECLINED);

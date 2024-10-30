@@ -9,14 +9,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PostBankSimPaymentRequest {
+public class PostBankSimulatorPaymentRequest {
   @NotNull
   @Size(min=14, max=19)
   @Pattern(regexp="^[0-9]+$")

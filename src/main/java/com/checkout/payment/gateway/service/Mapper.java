@@ -6,7 +6,7 @@ import static com.checkout.payment.gateway.util.CommonUtils.EXPIRY_MONTH;
 import static com.checkout.payment.gateway.util.CommonUtils.EXPIRY_YEAR;
 import static com.checkout.payment.gateway.util.CommonUtils.LAST_FOUR_DIGIT_CARD_NUMBER;
 
-import com.checkout.payment.gateway.model.PostBankSimPaymentRequest;
+import com.checkout.payment.gateway.model.PostBankSimulatorPaymentRequest;
 import com.checkout.payment.gateway.model.PostPaymentRequest;
 import com.checkout.payment.gateway.model.PostPaymentResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +20,7 @@ public class Mapper {
     ObjectNode node = objectMapper.convertValue(sourceObject, ObjectNode.class);
 
     if (sourceObject instanceof PostPaymentRequest request
-        && targetClass == PostBankSimPaymentRequest.class) {
+        && targetClass == PostBankSimulatorPaymentRequest.class) {
       mapForBankSimPaymentRequest(node, request);
     }
 
