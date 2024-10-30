@@ -34,21 +34,29 @@ public class PaymentGatewayService {
   }
 
   public PostPaymentResponse processPayment(PostPaymentRequest paymentRequest) {
+    // TODO: Need implementation on rejected status based on invalid payment request
+    LOG.info("Start processing payment: {}", paymentRequest.toString());
     PostBankSimulatorPaymentRequest bankRequest = Mapper.mapTo(paymentRequest,
         PostBankSimulatorPaymentRequest.class);
+    LOG.info("Sending payment to the Bank");
     PostBankSimulatorPaymentReponse bankResponse = bankSimulatorClient.processPayment(bankRequest);
+    LOG.info("Retrieved response from Bank");
     PostPaymentResponse paymentResponse = new PostPaymentResponse();
-    paymentResponse.setId(UUID.randomUUID());
+    final UUID id = UUID.randomUUID();
+    paymentResponse.setId(id);
 
     if (bankResponse.getAuthorization_code().isEmpty() && !bankResponse.isAuthorized()) {
       paymentResponse.setStatus(PaymentStatus.DECLINED);
+      LOG.info("Payment got DECLINED: {}", paymentRequest);
       return paymentResponse;
     }
 
     paymentResponse = Mapper.mapTo(paymentRequest, PostPaymentResponse.class);
-    paymentResponse.setId(paymentResponse.getId());
+    paymentResponse.setId(id);
     paymentResponse.setStatus(PaymentStatus.AUTHORIZED);
     paymentsRepository.add(paymentResponse);
+    LOG.info("Payment got AUTHORIZED: {} and now adding into paymentsRepository with ID {}",
+        paymentResponse, paymentResponse.getId());
     return paymentResponse;
   }
 }
