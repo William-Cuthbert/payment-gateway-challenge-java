@@ -7,6 +7,7 @@ import com.checkout.payment.gateway.model.PostBankSimulatorPaymentRequest;
 import com.checkout.payment.gateway.model.PostPaymentRequest;
 import com.checkout.payment.gateway.model.PostPaymentResponse;
 import com.checkout.payment.gateway.repository.PaymentsRepository;
+import java.time.LocalDate;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,13 +18,11 @@ import org.springframework.stereotype.Service;
 public class PaymentGatewayService {
 
   private static final Logger LOG = LoggerFactory.getLogger(PaymentGatewayService.class);
-
   private final PaymentsRepository paymentsRepository;
   private final BankSimulatorClient bankSimulatorClient;
 
   @Autowired
-  public PaymentGatewayService(PaymentsRepository paymentsRepository,
-      BankSimulatorClient bankSimulatorClient) {
+  public PaymentGatewayService(PaymentsRepository paymentsRepository, BankSimulatorClient bankSimulatorClient) {
     this.paymentsRepository = paymentsRepository;
     this.bankSimulatorClient = bankSimulatorClient;
   }
@@ -34,20 +33,57 @@ public class PaymentGatewayService {
   }
 
   public PostPaymentResponse processPayment(PostPaymentRequest paymentRequest) {
-    // TODO: Need implementation on rejected status based on invalid payment request
-    LOG.info("Start processing payment: {}", paymentRequest.toString());
-    PostBankSimulatorPaymentRequest bankRequest = Mapper.mapTo(paymentRequest,
-        PostBankSimulatorPaymentRequest.class);
+    if (paymentRequest == null) {
+      LOG.error("Received null payment request");
+      throw new IllegalArgumentException("Payment request cannot be null");
+    }
+
+    LOG.info("Start processing payment: {}", paymentRequest);
+
+    if (isInvalidPaymentRequest(paymentRequest)) {
+      LOG.info("Payment request REJECTED due to invalid information: {}", paymentRequest);
+      return createRejectedResponse();
+    }
+
+    PostBankSimulatorPaymentRequest bankRequest = Mapper.mapTo(paymentRequest, PostBankSimulatorPaymentRequest.class);
     LOG.info("Sending payment to the Bank");
-    PostBankSimulatorPaymentReponse bankResponse = bankSimulatorClient.processPayment(bankRequest);
-    LOG.info("Retrieved response from Bank");
+
+    PostBankSimulatorPaymentReponse bankResponse;
+    try {
+      bankResponse = bankSimulatorClient.processPayment(bankRequest);
+      LOG.info("Retrieved response from Bank: {}", bankResponse);
+    } catch (Exception e) {
+      LOG.error("Failed to process payment with Bank: {}", e.getMessage());
+      throw new EventProcessingException("Bank processing failed");
+    }
+
+    return createPaymentResponse(paymentRequest, bankResponse);
+  }
+
+  private boolean isInvalidPaymentRequest(PostPaymentRequest paymentRequest) {
+    return paymentRequest.getCardNumber() <= 0 ||
+        paymentRequest.getExpiryMonth() <= 0 || paymentRequest.getExpiryMonth() > 12 ||
+        paymentRequest.getExpiryYear() < getCurrentYear() ||
+        paymentRequest.getCvv() == null || paymentRequest.getCvv() <= 0 ||
+        paymentRequest.getAmount() <= 0 ||
+        paymentRequest.getCurrency() == null;
+  }
+
+  private PostPaymentResponse createRejectedResponse() {
+    PostPaymentResponse rejectedResponse = new PostPaymentResponse();
+    rejectedResponse.setId(UUID.randomUUID());
+    rejectedResponse.setStatus(PaymentStatus.REJECTED);
+    return rejectedResponse;
+  }
+
+  private PostPaymentResponse createPaymentResponse(PostPaymentRequest paymentRequest, PostBankSimulatorPaymentReponse bankResponse) {
     PostPaymentResponse paymentResponse = new PostPaymentResponse();
-    final UUID id = UUID.randomUUID();
+    UUID id = UUID.randomUUID();
     paymentResponse.setId(id);
 
     if (bankResponse.getAuthorization_code().isEmpty() && !bankResponse.isAuthorized()) {
       paymentResponse.setStatus(PaymentStatus.DECLINED);
-      LOG.info("Payment got DECLINED: {}", paymentRequest);
+      LOG.info("Payment DECLINED for request: {}", paymentRequest);
       return paymentResponse;
     }
 
@@ -55,8 +91,11 @@ public class PaymentGatewayService {
     paymentResponse.setId(id);
     paymentResponse.setStatus(PaymentStatus.AUTHORIZED);
     paymentsRepository.add(paymentResponse);
-    LOG.info("Payment got AUTHORIZED: {} and now adding into paymentsRepository with ID {}",
-        paymentResponse, paymentResponse.getId());
+    LOG.info("Payment AUTHORIZED and added to repository with ID {}", id);
     return paymentResponse;
+  }
+
+  private int getCurrentYear() {
+    return LocalDate.now().getYear();
   }
 }

@@ -29,13 +29,20 @@ import com.checkout.payment.gateway.model.PostPaymentResponse;
 import com.checkout.payment.gateway.repository.PaymentsRepository;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 @ExtendWith(MockitoExtension.class)
 public class PaymentGatewayServiceTest {
 
@@ -116,6 +123,45 @@ public class PaymentGatewayServiceTest {
 
     assertEquals(INVALID_ID_MESSAGE, exception.getMessage());
     verify(paymentsRepository, times(1)).get(invalidId);
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideInvalidPaymentRequests")
+  public void processPayment_Rejected_InvalidRequest(PostPaymentRequest invalidRequest) {
+    PostPaymentResponse actualResult = paymentGatewayService.processPayment(invalidRequest);
+
+    assertEquals(PaymentStatus.REJECTED, actualResult.getStatus());
+  }
+
+  private static Stream<Arguments> provideInvalidPaymentRequests() {
+    return Stream.of(Arguments.of(
+            createPaymentRequest(-1L, AUTHORIZED_EXPIRY_MONTH_NUMBER, AUTHORIZED_EXPIRY_YEAR_NUMBER,
+                AUTHORIZED_CVV_NUMBER, AUTHORIZED_AMOUNT)), Arguments.of(
+            createPaymentRequest(AUTHORIZED_CARD_NUMBER, 13, AUTHORIZED_EXPIRY_YEAR_NUMBER,
+                AUTHORIZED_CVV_NUMBER, AUTHORIZED_AMOUNT)), Arguments.of(
+            createPaymentRequest(AUTHORIZED_CARD_NUMBER, AUTHORIZED_EXPIRY_MONTH_NUMBER,
+                getCurrentYear() - 1, AUTHORIZED_CVV_NUMBER, AUTHORIZED_AMOUNT)),
+        Arguments.of(createPaymentRequest(AUTHORIZED_CARD_NUMBER, AUTHORIZED_EXPIRY_MONTH_NUMBER,
+            AUTHORIZED_EXPIRY_YEAR_NUMBER, null, AUTHORIZED_AMOUNT)),
+        Arguments.of(createPaymentRequest(AUTHORIZED_CARD_NUMBER, AUTHORIZED_EXPIRY_MONTH_NUMBER,
+            AUTHORIZED_EXPIRY_YEAR_NUMBER, AUTHORIZED_CVV_NUMBER, 0)));
+  }
+
+  private static PostPaymentRequest createPaymentRequest(Long cardNumber, int expiryMonth,
+      int expiryYear,
+      Integer cvv, int amount) {
+    PostPaymentRequest request = new PostPaymentRequest();
+    request.setCardNumber(cardNumber);
+    request.setExpiryMonth(expiryMonth);
+    request.setExpiryYear(expiryYear);
+    request.setCvv(cvv);
+    request.setAmount(amount);
+    request.setCurrency(CurrencyCode.GBP);
+    return request;
+  }
+
+  private static int getCurrentYear() {
+    return java.time.LocalDate.now().getYear();
   }
 
   private void assertPaymentResponse(PostPaymentResponse expected, PostPaymentResponse actual) {
