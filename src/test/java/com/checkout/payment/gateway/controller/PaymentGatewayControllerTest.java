@@ -53,7 +53,7 @@ class PaymentGatewayControllerTest {
   void setUp() {
     paymentRequest = new PostPaymentRequest();
     paymentRequest.setCardNumber(AUTHORIZED_CARD_NUMBER);
-    paymentRequest.setCurrency(CurrencyCode.GBP);
+    paymentRequest.setCurrency(CurrencyCode.GBP.getCurrencyCode());
     paymentRequest.setExpiryYear(AUTHORIZED_EXPIRY_YEAR_NUMBER);
     paymentRequest.setExpiryMonth(AUTHORIZED_EXPIRY_MONTH_NUMBER);
     paymentRequest.setCvv(AUTHORIZED_CVV_NUMBER);
@@ -63,7 +63,7 @@ class PaymentGatewayControllerTest {
     paymentResponse = new PostPaymentResponse();
     paymentResponse.setId(paymentId);
     paymentResponse.setAmount(AUTHORIZED_AMOUNT);
-    paymentResponse.setCurrency(CurrencyCode.GBP);
+    paymentResponse.setCurrency(CurrencyCode.GBP.getCurrencyCode());
     paymentResponse.setStatus(PaymentStatus.AUTHORIZED);
     paymentResponse.setExpiryMonth(AUTHORIZED_EXPIRY_MONTH_NUMBER);
     paymentResponse.setExpiryYear(AUTHORIZED_EXPIRY_YEAR_NUMBER);
@@ -81,7 +81,7 @@ class PaymentGatewayControllerTest {
         .andExpect(jsonPath("$.cardNumberLastFour").value(paymentResponse.getCardNumberLastFour()))
         .andExpect(jsonPath("$.expiryMonth").value(paymentResponse.getExpiryMonth()))
         .andExpect(jsonPath("$.expiryYear").value(paymentResponse.getExpiryYear()))
-        .andExpect(jsonPath("$.currency").value(paymentResponse.getCurrency().getCurrencyCode()))
+        .andExpect(jsonPath("$.currency").value(paymentResponse.getCurrency()))
         .andExpect(jsonPath("$.amount").value(paymentResponse.getAmount()));
   }
 
@@ -105,7 +105,7 @@ class PaymentGatewayControllerTest {
         .andExpect(jsonPath("$.cardNumberLastFour").value(paymentResponse.getCardNumberLastFour()))
         .andExpect(jsonPath("$.expiryMonth").value(paymentResponse.getExpiryMonth()))
         .andExpect(jsonPath("$.expiryYear").value(paymentResponse.getExpiryYear()))
-        .andExpect(jsonPath("$.currency").value(paymentResponse.getCurrency().getCurrencyCode()))
+        .andExpect(jsonPath("$.currency").value(paymentResponse.getCurrency()))
         .andExpect(jsonPath("$.amount").value(paymentResponse.getAmount()));
   }
 

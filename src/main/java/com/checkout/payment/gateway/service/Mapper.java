@@ -38,8 +38,7 @@ public class Mapper {
   }
 
   private static void mapForPostPaymentResponse(ObjectNode node, PostPaymentRequest request) {
-    String cardNumberString = String.valueOf(request.getCardNumber());
-    String lastFourDigits = cardNumberString.substring(cardNumberString.length() - 4);
+    String lastFourDigits = request.getCardNumber().substring(request.getCardNumber().length() - 4);
 
     node.put(LAST_FOUR_DIGIT_CARD_NUMBER, lastFourDigits);
     node.put(EXPIRY_MONTH, request.getExpiryMonth());

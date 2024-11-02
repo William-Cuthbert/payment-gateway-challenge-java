@@ -83,7 +83,7 @@ public class PaymentGatewayServiceTest {
   public void processPayment_Declined() {
     paymentRequest.setCardNumber(DECLINED_CARD_NUMBER);
     paymentRequest.setAmount(DECLINED_AMOUNT);
-    paymentRequest.setCurrency(CurrencyCode.USD);
+    paymentRequest.setCurrency(CurrencyCode.USD.getCurrencyCode());
 
     PostBankSimulatorPaymentReponse bankResponse = new PostBankSimulatorPaymentReponse();
     bankResponse.setAuthorized(false);
@@ -135,19 +135,19 @@ public class PaymentGatewayServiceTest {
 
   private static Stream<Arguments> provideInvalidPaymentRequests() {
     return Stream.of(Arguments.of(
-            createPaymentRequest(-1L, AUTHORIZED_EXPIRY_MONTH_NUMBER, AUTHORIZED_EXPIRY_YEAR_NUMBER,
+            createPaymentRequest("2222", AUTHORIZED_EXPIRY_MONTH_NUMBER, AUTHORIZED_EXPIRY_YEAR_NUMBER,
                 AUTHORIZED_CVV_NUMBER, AUTHORIZED_AMOUNT)), Arguments.of(
             createPaymentRequest(AUTHORIZED_CARD_NUMBER, 13, AUTHORIZED_EXPIRY_YEAR_NUMBER,
                 AUTHORIZED_CVV_NUMBER, AUTHORIZED_AMOUNT)), Arguments.of(
             createPaymentRequest(AUTHORIZED_CARD_NUMBER, AUTHORIZED_EXPIRY_MONTH_NUMBER,
                 getCurrentYear() - 1, AUTHORIZED_CVV_NUMBER, AUTHORIZED_AMOUNT)),
         Arguments.of(createPaymentRequest(AUTHORIZED_CARD_NUMBER, AUTHORIZED_EXPIRY_MONTH_NUMBER,
-            AUTHORIZED_EXPIRY_YEAR_NUMBER, null, AUTHORIZED_AMOUNT)),
+            AUTHORIZED_EXPIRY_YEAR_NUMBER, 12, AUTHORIZED_AMOUNT)),
         Arguments.of(createPaymentRequest(AUTHORIZED_CARD_NUMBER, AUTHORIZED_EXPIRY_MONTH_NUMBER,
             AUTHORIZED_EXPIRY_YEAR_NUMBER, AUTHORIZED_CVV_NUMBER, 0)));
   }
 
-  private static PostPaymentRequest createPaymentRequest(Long cardNumber, int expiryMonth,
+  private static PostPaymentRequest createPaymentRequest(String cardNumber, int expiryMonth,
       int expiryYear,
       Integer cvv, int amount) {
     PostPaymentRequest request = new PostPaymentRequest();
@@ -156,7 +156,7 @@ public class PaymentGatewayServiceTest {
     request.setExpiryYear(expiryYear);
     request.setCvv(cvv);
     request.setAmount(amount);
-    request.setCurrency(CurrencyCode.GBP);
+    request.setCurrency(CurrencyCode.GBP.getCurrencyCode());
     return request;
   }
 
@@ -180,7 +180,7 @@ public class PaymentGatewayServiceTest {
     paymentRequest.setExpiryYear(AUTHORIZED_EXPIRY_YEAR_NUMBER);
     paymentRequest.setCvv(AUTHORIZED_CVV_NUMBER);
     paymentRequest.setAmount(AUTHORIZED_AMOUNT);
-    paymentRequest.setCurrency(CurrencyCode.GBP);
+    paymentRequest.setCurrency(CurrencyCode.GBP.getCurrencyCode());
     return paymentRequest;
   }
 
@@ -188,7 +188,7 @@ public class PaymentGatewayServiceTest {
     expectedResponse = new PostPaymentResponse();
     expectedResponse.setAmount(AUTHORIZED_AMOUNT);
     expectedResponse.setCardNumberLastFour(AUTHORIZED_LAST_FOUR_DIGIT_CARD_NUMBER);
-    expectedResponse.setCurrency(CurrencyCode.GBP);
+    expectedResponse.setCurrency(CurrencyCode.GBP.getCurrencyCode());
     expectedResponse.setExpiryMonth(AUTHORIZED_EXPIRY_MONTH_NUMBER);
     expectedResponse.setExpiryYear(AUTHORIZED_EXPIRY_YEAR_NUMBER);
     expectedResponse.setStatus(PaymentStatus.AUTHORIZED);

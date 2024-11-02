@@ -16,7 +16,7 @@ import lombok.Setter;
 public class PostBankSimulatorPaymentRequest {
 
   @JsonProperty("card_number")
-  private long cardNumber;
+  private String cardNumber;
 
   @JsonProperty("expiry_date")
   private String expiryDate;

@@ -1,10 +1,10 @@
 package com.checkout.payment.gateway.util;
 
 public class CommonUtils {
-  public static final long DECLINED_CARD_NUMBER = 2222405343248112L;
+  public static final String DECLINED_CARD_NUMBER = "2222405343248112";
   public static final String AUTHORIZATION_CODE = "0bb07405-6d44-4b50-a14f-7ae0beff13ad";
-  public static final long AUTHORIZED_CARD_NUMBER = 2222405343248877L;
-  public static final int AUTHORIZED_LAST_FOUR_DIGIT_CARD_NUMBER = 8877;
+  public static final String AUTHORIZED_CARD_NUMBER = "2222405343248877";
+  public static final String AUTHORIZED_LAST_FOUR_DIGIT_CARD_NUMBER = "8877";
   public static final int AUTHORIZED_CVV_NUMBER = 123;
   public static final int DECLINED_CVV_NUMBER = 456;
   public static final int AUTHORIZED_EXPIRY_MONTH_NUMBER = 4;

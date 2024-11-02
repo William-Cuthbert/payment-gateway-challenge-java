@@ -16,10 +16,10 @@ import lombok.Data;
 public class PostPaymentResponse {
   private UUID id;
   private PaymentStatus status;
-  private int cardNumberLastFour;
+  private String cardNumberLastFour;
   private int expiryMonth;
   private int expiryYear;
-  private CurrencyCode currency;
+  private String currency;
   private int amount;
 
   @Override
@@ -30,7 +30,7 @@ public class PostPaymentResponse {
         ", cardNumberLastFour=" + cardNumberLastFour +
         ", expiryMonth=" + expiryMonth +
         ", expiryYear=" + expiryYear +
-        ", currency='" + currency.getCurrencyCode() + '\'' +
+        ", currency='" + currency + '\'' +
         ", amount=" + amount +
         '}';
   }

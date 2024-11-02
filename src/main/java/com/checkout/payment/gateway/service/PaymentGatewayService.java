@@ -9,6 +9,7 @@ import com.checkout.payment.gateway.model.PostPaymentResponse;
 import com.checkout.payment.gateway.repository.PaymentsRepository;
 import java.time.LocalDate;
 import java.util.UUID;
+import com.checkout.payment.gateway.util.PaymentRequestValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class PaymentGatewayService {
 
     LOG.info("Start processing payment: {}", paymentRequest);
 
-    if (isInvalidPaymentRequest(paymentRequest)) {
+    if (!PaymentRequestValidator.isPaymentRequestValid(paymentRequest)) {
       LOG.info("Payment request REJECTED due to invalid information: {}", paymentRequest);
       return createRejectedResponse();
     }
@@ -58,15 +59,6 @@ public class PaymentGatewayService {
     }
 
     return createPaymentResponse(paymentRequest, bankResponse);
-  }
-
-  private boolean isInvalidPaymentRequest(PostPaymentRequest paymentRequest) {
-    return paymentRequest.getCardNumber() <= 0 ||
-        paymentRequest.getExpiryMonth() <= 0 || paymentRequest.getExpiryMonth() > 12 ||
-        paymentRequest.getExpiryYear() < getCurrentYear() ||
-        paymentRequest.getCvv() == null || paymentRequest.getCvv() <= 0 ||
-        paymentRequest.getAmount() <= 0 ||
-        paymentRequest.getCurrency() == null;
   }
 
   private PostPaymentResponse createRejectedResponse() {
@@ -93,9 +85,5 @@ public class PaymentGatewayService {
     paymentsRepository.add(paymentResponse);
     LOG.info("Payment AUTHORIZED and added to repository with ID {}", id);
     return paymentResponse;
-  }
-
-  private int getCurrentYear() {
-    return LocalDate.now().getYear();
   }
 }
